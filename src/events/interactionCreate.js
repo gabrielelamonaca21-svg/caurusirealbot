@@ -1,4 +1,4 @@
-const { ChannelType, PermissionsBitField, EmbedBuilder } = require('discord.js');
+const { ChannelType, PermissionsBitField, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
 const ticketCategories = require('../config/tickets');
 
 const TICKET_CATEGORY_PARENT_ID = '1492537982178300084';
@@ -6,67 +6,57 @@ const RECLUTAMENTO_ROLE_ID = '1512881504236212335';
 const BRACCIO_ROLE_IDS = ['1512898151487639785', '1512896232962654440'];
 const ALLEANZA_ROLE_ID = '1492540918245490800';
 const ALTO_COMANDO_ROLE_IDS = ['1512879467662676079', '1512879459244576869'];
-const SOTTO_GANG_ROLE_ID = '1512882453990084778';
-const RECLUTAMENTO_EMBED = new EmbedBuilder()
-  .setTitle('🎫 Ticket Aperto')
-  .setDescription(`***OOC***
-
-***Età:***
-***Voce Bianca:***
-***Da quanto tempo fai RP:***
-
-***IC***
-
-***Nome e Cognome:***
-***Età:***
-***Schedamento con go pro attiva:***`)
-  .setColor(0x5865F2);
-const BRACCIO_EMBED = new EmbedBuilder()
-  .setTitle('🎫 Ticket Aperto')
-  .setDescription(`***OOC***
-
-***Età:***
-***Voce Bianca:***
-***Da quanto tempo fai RP:***
-***Clip/montage NO PVP NO ROLAS:***
-
-***IC***
-
-***Nome e Cognome:***
-***Età:***
-***Schedamento con go pro attiva:***
-***Che ruolo vorresti avere (braccio leggeri/braccio pesanti):***`)
-  .setColor(0x5865F2);
-const ALLEANZA_EMBED = new EmbedBuilder()
-  .setTitle('🎫 Ticket Aperto')
-  .setDescription(`***OOC***
-
-***Nome fazione:***
-***Civico:***
-***Sottogang attuali:***
-***Boss:***
-***Perchè vorreste allearvi a noi:***
-
-__*QUESTE INFORMAZIONI SONO ESCLUSIVAMENTE OOC*__`)
-  .setColor(0x5865F2);
-const ALTO_COMANDO_EMBED = new EmbedBuilder()
-  .setTitle('🎫 Ticket Aperto')
-  .setDescription(`***__Esponi la tua richiesta/problema ad un <@&1512879467662676079>/ <@&1512879459244576869>__***`)
-  .setColor(0x5865F2);
-const SOTTO_GANG_EMBED = new EmbedBuilder()
-  .setTitle('🎫 Ticket Aperto')
-  .setDescription(`**Nome Gang:**
-**Civico:**
-**Boss:**
-**Totale membri:**
-**Perchè vorreste diventare nostra sotto gang:**
-
-*__QUESTE INFORMAZIONI SONO ESCLUSIVAMENTE OOC__*`)
-  .setColor(0x5865F2);
-
 module.exports = {
   name: 'interactionCreate',
   async execute(interaction) {
+    // Handle close button click: show select menu with reasons
+    if (interaction.isButton() && interaction.customId === 'close-ticket') {
+      const closeMenu = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('ticket-close-reason')
+          .setPlaceholder('Seleziona motivo di chiusura')
+          .addOptions(
+            { label: 'Risolto', value: 'risolto', description: 'Il problema è stato risolto' },
+            { label: 'Inattività', value: 'inattivita', description: 'Chiudo per inattività' },
+            { label: 'Reclutato', value: 'reclutato', description: 'Utente reclutato' }
+          )
+      );
+
+      return interaction.reply({ content: 'Seleziona il motivo di chiusura:', components: [closeMenu], ephemeral: true });
+    }
+
+    // Handle the close reason selection
+    if (interaction.isStringSelectMenu() && interaction.customId === 'ticket-close-reason') {
+      const value = interaction.values[0];
+      const map = { risolto: 'Risolto', inattivita: 'Inattività', reclutato: 'Reclutato' };
+      const label = map[value] || value;
+
+      // Announce in channel
+      if (interaction.channel) {
+        await interaction.channel.send({ content: `**Ticket chiuso**\n**Motivo:** **${label}**\nChiuso da: ${interaction.user}` });
+
+        // Remove/disable close button from bot message if present
+        try {
+          const fetched = await interaction.channel.messages.fetch({ limit: 50 });
+          const botMsg = fetched.find(m => m.author.id === interaction.client.user.id && m.components.length > 0);
+          if (botMsg) {
+            await botMsg.edit({ components: [] });
+          }
+        } catch (e) {}
+
+        // Optionally prevent the ticket author from sending further messages
+        try {
+          const ticketAuthor = interaction.channel.permissionOverwrites.cache.find(po => po.type === 'member' && po.allow?.has?.(PermissionsBitField.Flags.ViewChannel));
+          // Remove send permission for the user who clicked close (best-effort)
+          await interaction.channel.permissionOverwrites.edit(interaction.user.id, { SendMessages: false }).catch(() => {});
+        } catch (e) {}
+      }
+
+      await interaction.reply({ content: `Ticket chiuso: **${label}**`, ephemeral: true });
+      return;
+    }
+
+    // Handle ticket creation select menu
     if (!interaction.isStringSelectMenu()) return;
     if (interaction.customId !== 'ticket-category') return;
 
@@ -131,8 +121,6 @@ module.exports = {
       });
     }
 
-    
-
     if (isBraccio) {
       channelOverwrites.push(
         {
@@ -165,11 +153,16 @@ module.exports = {
       parent: TICKET_CATEGORY_PARENT_ID,
       permissionOverwrites: channelOverwrites
     });
-    
+
+    const closeButtonRow = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId('close-ticket').setLabel('Chiudi Ticket').setStyle(ButtonStyle.Danger)
+    );
+
     const messageOptions = {
       allowedMentions: {
         roles: isReclutamento ? [RECLUTAMENTO_ROLE_ID] : isBraccio ? BRACCIO_ROLE_IDS : isAlleanza ? [ALLEANZA_ROLE_ID] : isAltoComando ? ALTO_COMANDO_ROLE_IDS : isSottoGang ? [SOTTO_GANG_ROLE_ID] : []
-      }
+      },
+      components: [closeButtonRow]
     };
 
     if (isReclutamento) {
