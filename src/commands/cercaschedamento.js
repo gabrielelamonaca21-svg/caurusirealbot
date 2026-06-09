@@ -1,6 +1,7 @@
 const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 
 const SCHEDAMENTO_CHANNEL_ID = '1513019696272773280';
+const ALLOWED_ROLE_ID = '1492540918245490800';
 
 module.exports = {
   name: 'cercaschedamento',
@@ -15,6 +16,10 @@ module.exports = {
     const guild = interaction.guild;
     if (!guild) {
       return interaction.reply({ content: 'Questo comando funziona solo in un server.', ephemeral: true });
+    }
+
+    if (!interaction.member.roles.cache.has(ALLOWED_ROLE_ID)) {
+      return interaction.reply({ content: 'Non hai il permesso per usare questo comando.', ephemeral: true });
     }
 
     const searchId = interaction.options.getString('id').replace(/[<@!>]/g, '').trim();

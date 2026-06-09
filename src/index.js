@@ -54,6 +54,7 @@ client.once('ready', async () => {
 
   if (slashCommands.length > 0) {
     try {
+      await client.application.commands.set([]);
       for (const guild of client.guilds.cache.values()) {
         await guild.commands.set(slashCommands);
       }
