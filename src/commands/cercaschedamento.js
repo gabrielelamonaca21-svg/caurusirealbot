@@ -17,17 +17,32 @@ module.exports = {
       return interaction.reply({ content: 'Questo comando funziona solo in un server.', ephemeral: true });
     }
 
-    const searchId = interaction.options.getString('id');
-    const archiveChannel = guild.channels.cache.get(SCHEDAMENTO_CHANNEL_ID);
-    if (!archiveChannel) {
+    const searchId = interaction.options.getString('id').replace(/[<@!>]/g, '').trim();
+    const archiveChannel = await guild.channels.fetch(SCHEDAMENTO_CHANNEL_ID).catch(() => null);
+    if (!archiveChannel || !archiveChannel.isTextBased()) {
       return interaction.reply({ content: 'Canale di schedamento non trovato.', ephemeral: true });
     }
 
-    const messages = await archiveChannel.messages.fetch({ limit: 100 });
-    const found = messages.find(msg =>
-      msg.embeds.length > 0 &&
-      msg.embeds[0].fields.some(field => field.name.includes('ID Discord') && field.value === searchId)
-    );
+    let found = null;
+    let lastId = null;
+    const normalizedSearch = searchId.trim();
+
+    while (!found) {
+      const messages = await archiveChannel.messages.fetch({ limit: 100, before: lastId }).catch(() => null);
+      if (!messages || messages.size === 0) break;
+
+      found = messages.find(msg =>
+        msg.embeds.length > 0 &&
+        msg.embeds[0].fields.some(field =>
+          field.name.toLowerCase().includes('id discord') && field.value.trim() === normalizedSearch
+        )
+      );
+
+      if (!found) {
+        lastId = messages.last()?.id;
+        if (!lastId) break;
+      }
+    }
 
     if (!found) {
       return interaction.reply({ content: `Nessuno schedamento trovato per ID ${searchId}.`, ephemeral: true });
