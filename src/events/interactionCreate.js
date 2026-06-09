@@ -152,6 +152,11 @@ module.exports = {
       }
 
       await interaction.reply({ content: `Ticket chiuso: **${label}**`, ephemeral: true });
+      try {
+        await channel.delete('Ticket chiuso');
+      } catch (e) {
+        console.error('Impossibile eliminare il canale ticket:', e);
+      }
       return;
     }
 
