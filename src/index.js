@@ -47,4 +47,19 @@ for (const file of eventFiles) {
   }
 }
 
+client.once('ready', async () => {
+  const slashCommands = client.commands
+    .filter(cmd => cmd.data)
+    .map(cmd => cmd.data.toJSON());
+
+  if (slashCommands.length > 0) {
+    try {
+      await client.application.commands.set(slashCommands);
+      console.log(`Registered ${slashCommands.length} slash command(s).`);
+    } catch (error) {
+      console.error('Errore registrazione slash commands:', error);
+    }
+  }
+});
+
 client.login(token);

@@ -67,6 +67,23 @@ const SOTTO_GANG_EMBED = new EmbedBuilder()
 module.exports = {
   name: 'interactionCreate',
   async execute(interaction) {
+    if (interaction.isChatInputCommand()) {
+      const command = interaction.client.commands.get(interaction.commandName);
+      if (!command) return;
+
+      try {
+        await command.execute(interaction);
+      } catch (error) {
+        console.error(error);
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({ content: 'Errore durante l\'esecuzione del comando.', ephemeral: true });
+        } else {
+          await interaction.reply({ content: 'Errore durante l\'esecuzione del comando.', ephemeral: true });
+        }
+      }
+      return;
+    }
+
     // Handle close button click: show select menu with reasons
     if (interaction.isButton() && interaction.customId === 'close-ticket') {
       const closeMenu = new ActionRowBuilder().addComponents(
