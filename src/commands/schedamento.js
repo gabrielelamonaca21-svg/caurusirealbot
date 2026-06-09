@@ -44,17 +44,22 @@ module.exports = {
       return interaction.reply({ content: 'Canale di schedamento non trovato.', ephemeral: true });
     }
 
+    const createdAt = new Date();
+    const createdAtLabel = createdAt.toLocaleString('it-IT', { timeZone: 'Europe/Rome' });
+
     const embed = new EmbedBuilder()
-      .setTitle('📋 Schedamento')
-      .setDescription(`Schedamento registrato da: <@${interaction.user.id}>`)
+      .setTitle('📋📝 Schedamento Registrato')
+      .setDescription(`✅ Schedamento registrato da: <@${interaction.user.id}>`)
       .setColor(0x5865F2)
       .addFields(
-        { name: 'ID Discord', value: discordId, inline: true },
-        { name: 'Nome DS', value: nomeDs, inline: true },
-        { name: 'Nome e Cognome', value: nomeCognome, inline: false },
-        { name: 'Data di nascita', value: nascita, inline: true }
+        { name: '🆔 ID Discord', value: discordId, inline: true },
+        { name: '👤 Nome DS', value: nomeDs, inline: true },
+        { name: '📝 Nome e Cognome', value: nomeCognome, inline: false },
+        { name: '🎂 Data di nascita', value: nascita, inline: true }
       )
-      .setImage(foto.url);
+      .setImage(foto.url)
+      .setTimestamp(createdAt)
+      .setFooter({ text: `Registrato il ${createdAtLabel}` });
 
     await archiveChannel.send({ embeds: [embed] });
     return interaction.reply({ content: 'Schedamento inviato correttamente.', ephemeral: true });
