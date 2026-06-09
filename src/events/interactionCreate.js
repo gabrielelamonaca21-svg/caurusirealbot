@@ -45,7 +45,7 @@ const ALLEANZA_EMBED = new EmbedBuilder()
 **Boss:**
 **Perchè vorreste allearvi a noi:**
 
-*QUESTE INFORMAZIONI SONO ESCLUSIVAMENTE OOC*`)
+__*QUESTE INFORMAZIONI SONO ESCLUSIVAMENTE OOC*__`)
   .setColor(0x5865F2);
 
 module.exports = {
