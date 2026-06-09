@@ -54,7 +54,7 @@ const ALTO_COMANDO_EMBED = new EmbedBuilder()
   .setColor(0x5865F2);
 const SOTTO_GANG_EMBED = new EmbedBuilder()
   .setTitle('🎫 Ticket Aperto')
-  .setDescription(`*** :ticket: Ticket Aperto
+  .setDescription(`*** :ticket:
 Nome Gang:
 Civico:
 Boss:
