@@ -98,6 +98,13 @@ module.exports = {
     }
 
     const canViewRoleId = '1492540918245490800';
+
+    const isReclutamento = category.id === 'reclutamenti';
+    const isBraccio = category.id === 'braccio-armato';
+    const isAlleanza = category.id === 'alleanza';
+    const isAltoComando = category.id === 'alto-comando';
+    const isSottoGang = category.id === 'sotto-gang';
+
     const channelOverwrites = [
       {
         id: everyoneRole.id,
@@ -113,8 +120,7 @@ module.exports = {
       }
     ];
 
-    const isBraccio = category.id === 'braccio-armato';
-    const isAltoComando = category.id === 'alto-comando';
+    
 
     if (isBraccio) {
       channelOverwrites.push(
@@ -148,12 +154,7 @@ module.exports = {
       parent: TICKET_CATEGORY_PARENT_ID,
       permissionOverwrites: channelOverwrites
     });
-
-    const isReclutamento = category.id === 'reclutamenti';
-    const isBraccio = category.id === 'braccio-armato';
-    const isAlleanza = category.id === 'alleanza';
-    const isAltoComando = category.id === 'alto-comando';
-    const isSottoGang = category.id === 'sotto-gang';
+    
     const messageOptions = {
       allowedMentions: {
         roles: isReclutamento ? [RECLUTAMENTO_ROLE_ID] : isBraccio ? BRACCIO_ROLE_IDS : isAlleanza ? [ALLEANZA_ROLE_ID] : isAltoComando ? ALTO_COMANDO_ROLE_IDS : []
