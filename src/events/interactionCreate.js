@@ -1,4 +1,4 @@
-const { ChannelType, PermissionsBitField, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
+const { ChannelType, PermissionsBitField, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, AttachmentBuilder } = require('discord.js');
 const ticketCategories = require('../config/tickets');
 
 const TICKET_CATEGORY_PARENT_ID = '1492537982178300084';
@@ -88,25 +88,57 @@ module.exports = {
       const map = { risolto: 'Risolto', inattivita: 'Inattività', reclutato: 'Reclutato' };
       const label = map[value] || value;
 
-      // Announce in channel
-      if (interaction.channel) {
-        await interaction.channel.send({ content: `**Ticket chiuso**\n**Motivo:** **${label}**\nChiuso da: ${interaction.user}` });
+      if (!interaction.channel || !interaction.guild) {
+        return interaction.reply({ content: 'Impossibile chiudere il ticket in questo canale.', ephemeral: true });
+      }
 
-        // Remove/disable close button from bot message if present
-        try {
-          const fetched = await interaction.channel.messages.fetch({ limit: 50 });
-          const botMsg = fetched.find(m => m.author.id === interaction.client.user.id && m.components.length > 0);
-          if (botMsg) {
-            await botMsg.edit({ components: [] });
-          }
-        } catch (e) {}
+      const channel = interaction.channel;
+      const createdAt = channel.createdAt ? channel.createdAt.toLocaleString('it-IT', { timeZone: 'Europe/Rome' }) : 'N/D';
+      const closedAt = new Date().toLocaleString('it-IT', { timeZone: 'Europe/Rome' });
 
-        // Optionally prevent the ticket author from sending further messages
-        try {
-          const ticketAuthor = interaction.channel.permissionOverwrites.cache.find(po => po.type === 'member' && po.allow?.has?.(PermissionsBitField.Flags.ViewChannel));
-          // Remove send permission for the user who clicked close (best-effort)
-          await interaction.channel.permissionOverwrites.edit(interaction.user.id, { SendMessages: false }).catch(() => {});
-        } catch (e) {}
+      const transcriptMessages = await channel.messages.fetch({ limit: 100 });
+      const sortedMessages = Array.from(transcriptMessages.values()).sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+      const transcriptBody = sortedMessages.map(msg => {
+        const author = `${msg.author.tag}`;
+        const time = msg.createdAt.toLocaleString('it-IT', { timeZone: 'Europe/Rome' });
+        const content = msg.content || '';
+        const attachments = msg.attachments.size > 0 ? ` [ALLEGATI: ${msg.attachments.map(att => att.url).join(', ')}]` : '';
+        return `[${time}] ${author}: ${content}${attachments}`;
+      }).join('\n');
+
+      const transcriptText = `Ticket: ${channel.name}\nCanale: ${channel.id}\nAperto da: ${interaction.user.tag}\nMotivo chiusura: ${label}\nApertura: ${createdAt}\nChiusura: ${closedAt}\n\n--- Transcript ---\n${transcriptBody}`;
+      const transcriptBuffer = Buffer.from(transcriptText, 'utf-8');
+      const transcriptFileName = `${channel.name}-transcript.txt`;
+      const transcriptAttachment = new AttachmentBuilder(transcriptBuffer, { name: transcriptFileName });
+
+      const closedEmbed = new EmbedBuilder()
+        .setTitle('🔒 Ticket Chiuso')
+        .addFields(
+          { name: 'Canale', value: `${channel}`, inline: false },
+          { name: 'Aperto da', value: `${interaction.user}`, inline: true },
+          { name: 'Chiuso da', value: `${interaction.user}`, inline: true },
+          { name: 'Motivazione', value: label, inline: true },
+          { name: 'Apertura', value: createdAt, inline: true },
+          { name: 'Chiusura', value: closedAt, inline: true }
+        )
+        .setColor(0xED4245);
+
+      // Disable the close button in any existing bot message
+      try {
+        const fetched = await channel.messages.fetch({ limit: 50 });
+        const botMsg = fetched.find(m => m.author.id === interaction.client.user.id && m.components.length > 0);
+        if (botMsg) {
+          await botMsg.edit({ components: [] });
+        }
+      } catch (e) {}
+
+      const transcriptMessage = await channel.send({ embeds: [closedEmbed], files: [transcriptAttachment] });
+      const transcriptUrl = transcriptMessage.attachments.first()?.url;
+      if (transcriptUrl) {
+        const downloadRow = new ActionRowBuilder().addComponents(
+          new ButtonBuilder().setLabel('Scarica Transcript').setStyle(ButtonStyle.Link).setURL(transcriptUrl)
+        );
+        await channel.send({ content: 'Scarica il transcript qui:', components: [downloadRow] });
       }
 
       await interaction.reply({ content: `Ticket chiuso: **${label}**`, ephemeral: true });
