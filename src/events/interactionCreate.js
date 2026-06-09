@@ -134,21 +134,24 @@ module.exports = {
       } catch (e) {}
 
       const transcriptArchiveChannel = interaction.guild.channels.cache.get(TRANSCRIPT_CHANNEL_ID);
-      let transcriptUrl;
+      const archiveEmbed = closedEmbed;
+      archiveEmbed.data.fields = archiveEmbed.data.fields.map(field =>
+        field.name === 'Canale' ? { ...field, value: `#${channel.name}` } : field
+      );
 
+      let archiveMessage;
       if (transcriptArchiveChannel) {
-        const archiveMessage = await transcriptArchiveChannel.send({ embeds: [closedEmbed], files: [transcriptAttachment] });
-        transcriptUrl = archiveMessage.attachments.first()?.url;
+        archiveMessage = await transcriptArchiveChannel.send({ embeds: [archiveEmbed], files: [transcriptAttachment] });
       } else {
-        const transcriptMessage = await channel.send({ embeds: [closedEmbed], files: [transcriptAttachment] });
-        transcriptUrl = transcriptMessage.attachments.first()?.url;
+        archiveMessage = await channel.send({ embeds: [archiveEmbed], files: [transcriptAttachment] });
       }
 
-      if (transcriptUrl) {
+      const transcriptUrl = archiveMessage.attachments.first()?.url;
+      if (transcriptUrl && transcriptArchiveChannel) {
         const downloadRow = new ActionRowBuilder().addComponents(
           new ButtonBuilder().setLabel('Scarica Transcript').setStyle(ButtonStyle.Link).setURL(transcriptUrl)
         );
-        await channel.send({ content: 'Scarica il transcript qui:', components: [downloadRow] });
+        await transcriptArchiveChannel.send({ content: 'Scarica il transcript qui:', components: [downloadRow] });
       }
 
       await interaction.reply({ content: `Ticket chiuso: **${label}**`, ephemeral: true });
