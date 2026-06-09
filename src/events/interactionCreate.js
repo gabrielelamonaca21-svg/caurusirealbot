@@ -4,6 +4,7 @@ const ticketCategories = require('../config/tickets');
 const TICKET_CATEGORY_PARENT_ID = '1492537982178300084';
 const RECLUTAMENTO_ROLE_ID = '1512881504236212335';
 const BRACCIO_ROLE_IDS = ['1512898151487639785', '1512896232962654440'];
+const ALLEANZA_ROLE_ID = '1492540918245490800';
 const RECLUTAMENTO_EMBED = new EmbedBuilder()
   .setTitle('🎫 Ticket Aperto')
   .setDescription(`***OOC***
@@ -33,6 +34,20 @@ const BRACCIO_EMBED = new EmbedBuilder()
 **Età:**
 **Schedamento con go pro attiva:**
 **Che ruolo vorresti avere (braccio leggeri/braccio pesanti):**`)
+  .setColor(0x5865F2);
+const ALLEANZA_EMBED = new EmbedBuilder()
+  .setTitle('🎫 Ticket Aperto')
+  .setDescription(`***OOC***
+
+**Nome fazione:**
+**Civico:**
+**Sottogang attuali:**
+**Boss:**
+**Perchè vorreste allearvi a noi:**
+
+***IC***
+
+**QUESTE INFORMAZIONI SONO ESCLUSIVAMENTE OOC**`)
   .setColor(0x5865F2);
 
 module.exports = {
@@ -87,9 +102,10 @@ module.exports = {
 
     const isReclutamento = category.id === 'reclutamenti';
     const isBraccio = category.id === 'braccio-armato';
+    const isAlleanza = category.id === 'alleanza';
     const messageOptions = {
       allowedMentions: {
-        roles: isReclutamento ? [RECLUTAMENTO_ROLE_ID] : isBraccio ? BRACCIO_ROLE_IDS : []
+        roles: isReclutamento ? [RECLUTAMENTO_ROLE_ID] : isBraccio ? BRACCIO_ROLE_IDS : isAlleanza ? [ALLEANZA_ROLE_ID] : []
       }
     };
 
@@ -99,6 +115,9 @@ module.exports = {
     } else if (isBraccio) {
       messageOptions.content = `<@&${BRACCIO_ROLE_IDS[0]}> <@&${BRACCIO_ROLE_IDS[1]}>`;
       messageOptions.embeds = [BRACCIO_EMBED];
+    } else if (isAlleanza) {
+      messageOptions.content = `<@&${ALLEANZA_ROLE_ID}>`;
+      messageOptions.embeds = [ALLEANZA_EMBED];
     } else {
       messageOptions.content = `🎫 Ticket creato da ${interaction.user}. Categoria: **${category.label}**`;
     }
