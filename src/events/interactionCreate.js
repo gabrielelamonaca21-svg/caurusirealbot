@@ -1,21 +1,22 @@
-const { ChannelType, PermissionsBitField } = require('discord.js');
+const { ChannelType, PermissionsBitField, EmbedBuilder } = require('discord.js');
 const ticketCategories = require('../config/tickets');
 
 const TICKET_CATEGORY_PARENT_ID = '1492537982178300084';
 const RECLUTAMENTO_ROLE_ID = '1512881504236212335';
-const RECLUTAMENTO_MESSAGE = `🎫 Ticket Aperto
+const RECLUTAMENTO_EMBED = new EmbedBuilder()
+  .setTitle('🎫 Ticket Aperto')
+  .setDescription(`***OOC***
 
-***OOC***
-
-**Età:
+**Età:**
 Voce Bianca:
 Da quanto tempo fai RP:**
 
 ***IC***
 
-**Nome e Cognome:
+**Nome e Cognome:**
 Età:
-Schedamento con go pro attiva:**`;
+Schedamento con go pro attiva:**`)
+  .setColor(0x5865F2);
 
 module.exports = {
   name: 'interactionCreate',
@@ -67,17 +68,21 @@ module.exports = {
       ]
     });
 
-    const initialMessage = category.id === 'reclutamenti'
-      ? `<@&${RECLUTAMENTO_ROLE_ID}>
-${RECLUTAMENTO_MESSAGE}`
-      : `🎫 Ticket creato da ${interaction.user}. Categoria: **${category.label}**`;
-
-    await channel.send({
-      content: initialMessage,
+    const isReclutamento = category.id === 'reclutamenti';
+    const messageOptions = {
       allowedMentions: {
-        roles: category.id === 'reclutamenti' ? [RECLUTAMENTO_ROLE_ID] : []
+        roles: isReclutamento ? [RECLUTAMENTO_ROLE_ID] : []
       }
-    });
+    };
+
+    if (isReclutamento) {
+      messageOptions.content = `<@&${RECLUTAMENTO_ROLE_ID}>`;
+      messageOptions.embeds = [RECLUTAMENTO_EMBED];
+    } else {
+      messageOptions.content = `🎫 Ticket creato da ${interaction.user}. Categoria: **${category.label}**`;
+    }
+
+    await channel.send(messageOptions);
 
     return interaction.reply({
       content: `Ticket creato: ${channel}.`,
