@@ -55,11 +55,11 @@ const ALTO_COMANDO_EMBED = new EmbedBuilder()
   .setColor(0x5865F2);
 const SOTTO_GANG_EMBED = new EmbedBuilder()
   .setTitle('🎫 Ticket Aperto')
-  .setDescription(`***Nome Gang:
-***Civico:
-Boss:
-Totale membri:
-Perchè vorreste diventare nostra sotto gang:***
+  .setDescription(`**Nome Gang:**
+**Civico:**
+**Boss:**
+**Totale membri:**
+**Perchè vorreste diventare nostra sotto gang:**
 
 *__QUESTE INFORMAZIONI SONO ESCLUSIVAMENTE OOC__*`)
   .setColor(0x5865F2);
