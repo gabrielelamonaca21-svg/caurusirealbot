@@ -54,8 +54,10 @@ client.once('ready', async () => {
 
   if (slashCommands.length > 0) {
     try {
-      await client.application.commands.set(slashCommands);
-      console.log(`Registered ${slashCommands.length} slash command(s).`);
+      for (const guild of client.guilds.cache.values()) {
+        await guild.commands.set(slashCommands);
+      }
+      console.log(`Registered ${slashCommands.length} slash command(s) in ${client.guilds.cache.size} guild(s).`);
     } catch (error) {
       console.error('Errore registrazione slash commands:', error);
     }
