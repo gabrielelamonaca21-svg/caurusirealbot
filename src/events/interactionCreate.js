@@ -3,6 +3,7 @@ const ticketCategories = require('../config/tickets');
 
 const TICKET_CATEGORY_PARENT_ID = '1492537982178300084';
 const RECLUTAMENTO_ROLE_ID = '1512881504236212335';
+const BRACCIO_ROLE_IDS = ['1512898151487639785', '1512896232962654440'];
 const RECLUTAMENTO_EMBED = new EmbedBuilder()
   .setTitle('🎫 Ticket Aperto')
   .setDescription(`***OOC***
@@ -16,6 +17,22 @@ const RECLUTAMENTO_EMBED = new EmbedBuilder()
 **Nome e Cognome:**
 **Età:**
 **Schedamento con go pro attiva:**`)
+  .setColor(0x5865F2);
+const BRACCIO_EMBED = new EmbedBuilder()
+  .setTitle('🎫 Ticket Aperto')
+  .setDescription(`***OOC***
+
+**Età:**
+**Voce Bianca:**
+**Da quanto tempo fai RP:**
+**Clip/montage NO PVP NO ROLAS:**
+
+***IC***
+
+**Nome e Cognome:**
+**Età:**
+**Schedamento con go pro attiva:**
+**Che ruolo vorresti avere (braccio leggeri/braccio pesanti):**`)
   .setColor(0x5865F2);
 
 module.exports = {
@@ -69,15 +86,19 @@ module.exports = {
     });
 
     const isReclutamento = category.id === 'reclutamenti';
+    const isBraccio = category.id === 'braccio-armato';
     const messageOptions = {
       allowedMentions: {
-        roles: isReclutamento ? [RECLUTAMENTO_ROLE_ID] : []
+        roles: isReclutamento ? [RECLUTAMENTO_ROLE_ID] : isBraccio ? BRACCIO_ROLE_IDS : []
       }
     };
 
     if (isReclutamento) {
       messageOptions.content = `<@&${RECLUTAMENTO_ROLE_ID}>`;
       messageOptions.embeds = [RECLUTAMENTO_EMBED];
+    } else if (isBraccio) {
+      messageOptions.content = `<@&${BRACCIO_ROLE_IDS[0]}> <@&${BRACCIO_ROLE_IDS[1]}>`;
+      messageOptions.embeds = [BRACCIO_EMBED];
     } else {
       messageOptions.content = `🎫 Ticket creato da ${interaction.user}. Categoria: **${category.label}**`;
     }
