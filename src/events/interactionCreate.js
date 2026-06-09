@@ -1,6 +1,22 @@
 const { ChannelType, PermissionsBitField } = require('discord.js');
 const ticketCategories = require('../config/tickets');
 
+const TICKET_CATEGORY_PARENT_ID = '1492537982178300084';
+const RECLUTAMENTO_ROLE_ID = '1512881504236212335';
+const RECLUTAMENTO_MESSAGE = `🎫 Ticket Aperto
+
+***OOC***
+
+**Età:
+Voce Bianca:
+Da quanto tempo fai RP:**
+
+***IC***
+
+**Nome e Cognome:
+Età:
+Schedamento con go pro attiva:**`;
+
 module.exports = {
   name: 'interactionCreate',
   async execute(interaction) {
@@ -38,6 +54,7 @@ module.exports = {
     const channel = await interaction.guild.channels.create({
       name: ticketName,
       type: ChannelType.GuildText,
+      parent: TICKET_CATEGORY_PARENT_ID,
       permissionOverwrites: [
         {
           id: everyoneRole.id,
@@ -50,7 +67,17 @@ module.exports = {
       ]
     });
 
-    await channel.send({ content: `🎫 Ticket creato da ${interaction.user}. Categoria: **${category.label}**` });
+    const initialMessage = category.id === 'reclutamenti'
+      ? `<@&${RECLUTAMENTO_ROLE_ID}>
+${RECLUTAMENTO_MESSAGE}`
+      : `🎫 Ticket creato da ${interaction.user}. Categoria: **${category.label}**`;
+
+    await channel.send({
+      content: initialMessage,
+      allowedMentions: {
+        roles: category.id === 'reclutamenti' ? [RECLUTAMENTO_ROLE_ID] : []
+      }
+    });
 
     return interaction.reply({
       content: `Ticket creato: ${channel}.`,
