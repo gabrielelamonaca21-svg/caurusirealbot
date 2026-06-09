@@ -6,6 +6,7 @@ const RECLUTAMENTO_ROLE_ID = '1512881504236212335';
 const BRACCIO_ROLE_IDS = ['1512898151487639785', '1512896232962654440'];
 const ALLEANZA_ROLE_ID = '1492540918245490800';
 const ALTO_COMANDO_ROLE_IDS = ['1512879467662676079', '1512879459244576869'];
+const SOTTO_GANG_ROLE_ID = '1512882453990084778';
 const RECLUTAMENTO_EMBED = new EmbedBuilder()
   .setTitle('🎫 Ticket Aperto')
   .setDescription(`***OOC***
@@ -97,8 +98,6 @@ module.exports = {
       });
     }
 
-    const canViewRoleId = '1492540918245490800';
-
     const isReclutamento = category.id === 'reclutamenti';
     const isBraccio = category.id === 'braccio-armato';
     const isAlleanza = category.id === 'alleanza';
@@ -113,12 +112,24 @@ module.exports = {
       {
         id: interaction.user.id,
         allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory]
-      },
-      {
-        id: canViewRoleId,
-        allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.ReadMessageHistory]
       }
     ];
+
+    // ALLEANZA role should be able to view most tickets, but not alto-comando or sotto-gang
+    if (!isAltoComando && !isSottoGang) {
+      channelOverwrites.push({
+        id: ALLEANZA_ROLE_ID,
+        allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.ReadMessageHistory]
+      });
+    }
+
+    // For sotto-gang tickets, only the specific sotto-gang role (plus the author) can view
+    if (isSottoGang) {
+      channelOverwrites.push({
+        id: SOTTO_GANG_ROLE_ID,
+        allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.ReadMessageHistory]
+      });
+    }
 
     
 
@@ -157,7 +168,7 @@ module.exports = {
     
     const messageOptions = {
       allowedMentions: {
-        roles: isReclutamento ? [RECLUTAMENTO_ROLE_ID] : isBraccio ? BRACCIO_ROLE_IDS : isAlleanza ? [ALLEANZA_ROLE_ID] : isAltoComando ? ALTO_COMANDO_ROLE_IDS : []
+        roles: isReclutamento ? [RECLUTAMENTO_ROLE_ID] : isBraccio ? BRACCIO_ROLE_IDS : isAlleanza ? [ALLEANZA_ROLE_ID] : isAltoComando ? ALTO_COMANDO_ROLE_IDS : isSottoGang ? [SOTTO_GANG_ROLE_ID] : []
       }
     };
 
@@ -174,6 +185,7 @@ module.exports = {
       messageOptions.content = `<@&${ALTO_COMANDO_ROLE_IDS[0]}> <@&${ALTO_COMANDO_ROLE_IDS[1]}>`;
       messageOptions.embeds = [ALTO_COMANDO_EMBED];
     } else if (isSottoGang) {
+      messageOptions.content = `<@&${SOTTO_GANG_ROLE_ID}>`;
       messageOptions.embeds = [SOTTO_GANG_EMBED];
     } else {
       messageOptions.content = `🎫 Ticket creato da ${interaction.user}. Categoria: **${category.label}**`;
