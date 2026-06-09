@@ -50,7 +50,7 @@ __*QUESTE INFORMAZIONI SONO ESCLUSIVAMENTE OOC*__`)
   .setColor(0x5865F2);
 const ALTO_COMANDO_EMBED = new EmbedBuilder()
   .setTitle('🎫 Ticket Aperto')
-  .setDescription(`***__Esponi la tua richiesta/problema ad un 1512879467662676079/1512879459244576869__***`)
+  .setDescription(`***__Esponi la tua richiesta/problema ad un <@&1512879467662676079>/ <@&1512879459244576869>__***`)
   .setColor(0x5865F2);
 
 module.exports = {
