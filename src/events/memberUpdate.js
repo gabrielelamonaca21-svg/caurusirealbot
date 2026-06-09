@@ -37,6 +37,6 @@ module.exports = {
       .setColor(0xFAA61A)
       .setTimestamp();
 
-    await sendLog(client, 'server', embed, null);
+    await sendLog(client, 'roles', embed, null);
   }
 };
