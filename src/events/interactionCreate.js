@@ -7,6 +7,7 @@ const BRACCIO_ROLE_IDS = ['1512898151487639785', '1512896232962654440'];
 const ALLEANZA_ROLE_ID = '1492540918245490800';
 const ALTO_COMANDO_ROLE_IDS = ['1512879467662676079', '1512879459244576869'];
 const SOTTO_GANG_ROLE_ID = '1512882453990084778';
+const TRANSCRIPT_CHANNEL_ID = '1463080891411730648';
 const RECLUTAMENTO_EMBED = new EmbedBuilder()
   .setTitle('🎫 Ticket Aperto')
   .setDescription(`***OOC***
@@ -132,8 +133,17 @@ module.exports = {
         }
       } catch (e) {}
 
-      const transcriptMessage = await channel.send({ embeds: [closedEmbed], files: [transcriptAttachment] });
-      const transcriptUrl = transcriptMessage.attachments.first()?.url;
+      const transcriptArchiveChannel = interaction.guild.channels.cache.get(TRANSCRIPT_CHANNEL_ID);
+      let transcriptUrl;
+
+      if (transcriptArchiveChannel) {
+        const archiveMessage = await transcriptArchiveChannel.send({ embeds: [closedEmbed], files: [transcriptAttachment] });
+        transcriptUrl = archiveMessage.attachments.first()?.url;
+      } else {
+        const transcriptMessage = await channel.send({ embeds: [closedEmbed], files: [transcriptAttachment] });
+        transcriptUrl = transcriptMessage.attachments.first()?.url;
+      }
+
       if (transcriptUrl) {
         const downloadRow = new ActionRowBuilder().addComponents(
           new ButtonBuilder().setLabel('Scarica Transcript').setStyle(ButtonStyle.Link).setURL(transcriptUrl)
