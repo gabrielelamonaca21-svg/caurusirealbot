@@ -20,62 +20,33 @@ module.exports = {
     .addStringOption(option =>
       option.setName('nascita').setDescription('Data di nascita').setRequired(true)
     )
-    .addStringOption(option =>
-      option.setName('foto').setDescription('URL dell\'immagine').setRequired(true)
+    .addAttachmentOption(option =>
+      option.setName('foto').setDescription('Screenshot o foto').setRequired(true)
     ),
-  async execute(interactionOrMessage, args) {
-    let interaction = null;
-    let message = null;
-    let replyFn = null;
-    let authorId = null;
-    let guild = null;
-
-    if (interactionOrMessage.isChatInputCommand && interactionOrMessage.isChatInputCommand()) {
-      interaction = interactionOrMessage;
-      guild = interaction.guild;
-      authorId = interaction.user.id;
-      replyFn = async content => {
-        if (interaction.replied || interaction.deferred) {
-          return interaction.followUp(content);
-        }
-        return interaction.reply(content);
-      };
-      args = [
-        interaction.options.getString('id'),
-        interaction.options.getString('nomeds'),
-        interaction.options.getString('nomecognome'),
-        interaction.options.getString('nascita'),
-        interaction.options.getString('foto')
-      ];
-    } else {
-      message = interactionOrMessage;
-      guild = message.guild;
-      authorId = message.author.id;
-      replyFn = content => message.reply(content);
-    }
-
+  async execute(interaction) {
+    const guild = interaction.guild;
     if (!guild) {
-      return replyFn({ content: 'Questo comando funziona solo in un server.', ephemeral: true });
+      return interaction.reply({ content: 'Questo comando funziona solo in un server.', ephemeral: true });
     }
 
-    if (!args || args.length < 5) {
-      return replyFn({ content: 'Uso: /schedamento [id] [nomeds] [nomecognome] [nascita] [foto]', ephemeral: true });
-    }
+    const discordId = interaction.options.getString('id');
+    const nomeDs = interaction.options.getString('nomeds');
+    const nomeCognome = interaction.options.getString('nomecognome');
+    const nascita = interaction.options.getString('nascita');
+    const foto = interaction.options.getAttachment('foto');
 
-    const discordId = args[0];
-    const nomeDs = args[1];
-    const nomeCognome = args[2];
-    const nascita = args[3];
-    const fotoUrl = args[4];
+    if (!discordId || !nomeDs || !nomeCognome || !nascita || !foto) {
+      return interaction.reply({ content: 'Uso: /schedamento [id] [nomeds] [nomecognome] [nascita] [foto]', ephemeral: true });
+    }
 
     const archiveChannel = guild.channels.cache.get(SCHEDAMENTO_CHANNEL_ID);
     if (!archiveChannel) {
-      return replyFn({ content: 'Canale di schedamento non trovato.', ephemeral: true });
+      return interaction.reply({ content: 'Canale di schedamento non trovato.', ephemeral: true });
     }
 
     const embed = new EmbedBuilder()
       .setTitle('📋 Schedamento')
-      .setDescription(`Schedamento registrato da: <@${authorId}>`)
+      .setDescription(`Schedamento registrato da: <@${interaction.user.id}>`)
       .setColor(0x5865F2)
       .addFields(
         { name: 'ID Discord', value: discordId, inline: true },
@@ -83,9 +54,9 @@ module.exports = {
         { name: 'Nome e Cognome', value: nomeCognome, inline: false },
         { name: 'Data di nascita', value: nascita, inline: true }
       )
-      .setImage(fotoUrl);
+      .setImage(foto.url);
 
     await archiveChannel.send({ embeds: [embed] });
-    return replyFn({ content: 'Schedamento inviato correttamente.', ephemeral: true });
+    return interaction.reply({ content: 'Schedamento inviato correttamente.', ephemeral: true });
   }
 };
