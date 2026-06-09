@@ -8,14 +8,14 @@ const RECLUTAMENTO_EMBED = new EmbedBuilder()
   .setDescription(`***OOC***
 
 **Età:**
-Voce Bianca:
-Da quanto tempo fai RP:**
+**Voce Bianca:**
+**Da quanto tempo fai RP:**
 
 ***IC***
 
 **Nome e Cognome:**
-Età:
-Schedamento con go pro attiva:**`)
+**Età:**
+**Schedamento con go pro attiva:**`)
   .setColor(0x5865F2);
 
 module.exports = {
