@@ -6,6 +6,63 @@ const RECLUTAMENTO_ROLE_ID = '1512881504236212335';
 const BRACCIO_ROLE_IDS = ['1512898151487639785', '1512896232962654440'];
 const ALLEANZA_ROLE_ID = '1492540918245490800';
 const ALTO_COMANDO_ROLE_IDS = ['1512879467662676079', '1512879459244576869'];
+const SOTTO_GANG_ROLE_ID = '1512882453990084778';
+const RECLUTAMENTO_EMBED = new EmbedBuilder()
+  .setTitle('🎫 Ticket Aperto')
+  .setDescription(`***OOC***
+
+***Età:***
+***Voce Bianca:***
+***Da quanto tempo fai RP:***
+
+***IC***
+
+***Nome e Cognome:***
+***Età:***
+***Schedamento con go pro attiva:***`)
+  .setColor(0x5865F2);
+const BRACCIO_EMBED = new EmbedBuilder()
+  .setTitle('🎫 Ticket Aperto')
+  .setDescription(`***OOC***
+
+***Età:***
+***Voce Bianca:***
+***Da quanto tempo fai RP:***
+***Clip/montage NO PVP NO ROLAS:***
+
+***IC***
+
+***Nome e Cognome:***
+***Età:***
+***Schedamento con go pro attiva:***
+***Che ruolo vorresti avere (braccio leggeri/braccio pesanti):***`)
+  .setColor(0x5865F2);
+const ALLEANZA_EMBED = new EmbedBuilder()
+  .setTitle('🎫 Ticket Aperto')
+  .setDescription(`***OOC***
+
+***Nome fazione:***
+***Civico:***
+***Sottogang attuali:***
+***Boss:***
+***Perchè vorreste allearvi a noi:***
+
+__*QUESTE INFORMAZIONI SONO ESCLUSIVAMENTE OOC*__`)
+  .setColor(0x5865F2);
+const ALTO_COMANDO_EMBED = new EmbedBuilder()
+  .setTitle('🎫 Ticket Aperto')
+  .setDescription(`***__Esponi la tua richiesta/problema ad un <@&1512879467662676079>/ <@&1512879459244576869>__***`)
+  .setColor(0x5865F2);
+const SOTTO_GANG_EMBED = new EmbedBuilder()
+  .setTitle('🎫 Ticket Aperto')
+  .setDescription(`**Nome Gang:**
+**Civico:**
+**Boss:**
+**Totale membri:**
+**Perchè vorreste diventare nostra sotto gang:**
+
+*__QUESTE INFORMAZIONI SONO ESCLUSIVAMENTE OOC__*`)
+  .setColor(0x5865F2);
 module.exports = {
   name: 'interactionCreate',
   async execute(interaction) {
