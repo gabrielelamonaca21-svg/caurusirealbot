@@ -1,15 +1,15 @@
-const { EmbedBuilder } = require('discord.js');
+﻿const { EmbedBuilder } = require('discord.js');
 const { sendLog } = require('../utils/logs');
 
 function buildGuildChanges(oldGuild, newGuild) {
   const changes = [];
 
   if (oldGuild.name !== newGuild.name) {
-    changes.push(`Nome: \\`${oldGuild.name}\\` → \\`${newGuild.name}\\``);
+    changes.push('Nome: `' + oldGuild.name + '` → `' + newGuild.name + '`');
   }
 
   if (oldGuild.description !== newGuild.description) {
-    changes.push(`Descrizione: \\`${oldGuild.description || 'N/D'}\\` → \\`${newGuild.description || 'N/D'}\\``);
+    changes.push('Descrizione: `' + (oldGuild.description || 'N/D') + '` → `' + (newGuild.description || 'N/D') + '`');
   }
 
   if (oldGuild.icon !== newGuild.icon) {
@@ -17,15 +17,15 @@ function buildGuildChanges(oldGuild, newGuild) {
   }
 
   if (oldGuild.preferredLocale !== newGuild.preferredLocale) {
-    changes.push(`Lingua: \\`${oldGuild.preferredLocale}\\` → \\`${newGuild.preferredLocale}\\``);
+    changes.push('Lingua: `' + oldGuild.preferredLocale + '` → `' + newGuild.preferredLocale + '`');
   }
 
   if (oldGuild.verificationLevel !== newGuild.verificationLevel) {
-    changes.push(`Livello verifica: \\`${oldGuild.verificationLevel}\\` → \\`${newGuild.verificationLevel}\\``);
+    changes.push('Livello verifica: `' + oldGuild.verificationLevel + '` → `' + newGuild.verificationLevel + '`');
   }
 
   if (oldGuild.defaultMessageNotifications !== newGuild.defaultMessageNotifications) {
-    changes.push(`Notifiche predefinite: \\`${oldGuild.defaultMessageNotifications}\\` → \\`${newGuild.defaultMessageNotifications}\\``);
+    changes.push('Notifiche predefinite: `' + oldGuild.defaultMessageNotifications + '` → `' + newGuild.defaultMessageNotifications + '`');
   }
 
   return changes;
