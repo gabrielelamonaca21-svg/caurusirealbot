@@ -54,8 +54,8 @@ const ALTO_COMANDO_EMBED = new EmbedBuilder()
   .setColor(0x5865F2);
 const SOTTO_GANG_EMBED = new EmbedBuilder()
   .setTitle('🎫 Ticket Aperto')
-  .setDescription(`Nome Gang:
-Civico:
+  .setDescription(`***Nome Gang:
+***Civico:
 Boss:
 Totale membri:
 Perchè vorreste diventare nostra sotto gang:***
@@ -97,20 +97,56 @@ module.exports = {
       });
     }
 
+    const canViewRoleId = '1492540918245490800';
+    const channelOverwrites = [
+      {
+        id: everyoneRole.id,
+        deny: [PermissionsBitField.Flags.ViewChannel]
+      },
+      {
+        id: interaction.user.id,
+        allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory]
+      },
+      {
+        id: canViewRoleId,
+        allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.ReadMessageHistory]
+      }
+    ];
+
+    const isBraccio = category.id === 'braccio-armato';
+    const isAltoComando = category.id === 'alto-comando';
+
+    if (isBraccio) {
+      channelOverwrites.push(
+        {
+          id: BRACCIO_ROLE_IDS[0],
+          allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.ReadMessageHistory]
+        },
+        {
+          id: BRACCIO_ROLE_IDS[1],
+          allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.ReadMessageHistory]
+        }
+      );
+    }
+
+    if (isAltoComando) {
+      channelOverwrites.push(
+        {
+          id: ALTO_COMANDO_ROLE_IDS[0],
+          allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.ReadMessageHistory]
+        },
+        {
+          id: ALTO_COMANDO_ROLE_IDS[1],
+          allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.ReadMessageHistory]
+        }
+      );
+    }
+
     const channel = await interaction.guild.channels.create({
       name: ticketName,
       type: ChannelType.GuildText,
       parent: TICKET_CATEGORY_PARENT_ID,
-      permissionOverwrites: [
-        {
-          id: everyoneRole.id,
-          deny: [PermissionsBitField.Flags.ViewChannel]
-        },
-        {
-          id: interaction.user.id,
-          allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory]
-        }
-      ]
+      permissionOverwrites: channelOverwrites
     });
 
     const isReclutamento = category.id === 'reclutamenti';
